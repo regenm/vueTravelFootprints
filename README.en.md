@@ -75,5 +75,4 @@ npm run build
 
 
 
-![image-20250830011331507](H:/git_project/vueTravelPoint/vueTravelPoint/assets/readmeImages/image-20250830011331507.png)
-
+![image-20250830011331507](./assets/readmeImages/image-20250830011331507.png)
