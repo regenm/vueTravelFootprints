@@ -67,12 +67,14 @@ npm run build
 
 ## 📷 Screenshots
 
-![image-20250830011233852](H:/git_project/vueTravelPoint/vueTravelPoint/assets/readmeImages/image-20250830011233852.png)
+![image-20250830011233852](./assets/readmeImages/image-20250830011233852.png)
 
-![image-20250830011259609](H:/git_project/vueTravelPoint/vueTravelPoint/assets/readmeImages/image-20250830011259609.png)
+![image-20250830011259609](./assets/readmeImages/image-20250830011259609.png)
 
-![image-20250830011310020](H:/git_project/vueTravelPoint/vueTravelPoint/assets/readmeImages/image-20250830011310020.png)
+![image-20250830011310020](./assets/readmeImages/image-20250830011310020.png)
 
 
 
 ![image-20250830011331507](./assets/readmeImages/image-20250830011331507.png)
+
+# 
