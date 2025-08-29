@@ -1,0 +1,37 @@
+[
+  {
+    "name": "西湖",
+    "longitude": "120.15507",
+    "latitude": "30.27415",
+    "photos": [
+      "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+    ]
+  },
+  {
+    "name": "黄山",
+    "longitude": "118.1689",
+    "latitude": "30.1336",
+    "photos": [
+      "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
+    ]
+  },
+  {
+    "name": "长城",
+    "longitude": "116.5704",
+    "latitude": "40.4319",
+    "photos": [
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+      "https://images.unsplash.com/photo-1491553895911-0055eca6402d"
+    ]
+  },
+  {
+    "name": "大三",
+    "longitude": "120",
+    "latitude": "40",
+    "photos": [
+      "https://cdn.jsdelivr.net/gh/regenm/regenm.github.io@main/images/hexo.png"
+    ]
+  }
+]
