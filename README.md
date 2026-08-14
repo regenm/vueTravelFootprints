@@ -1,84 +1,141 @@
-# 🌍 Travel Footprints Map 足迹地图
+# Travel Footprints Map
 
-中文说明 | [English](./README.en.md)
+A travel footprint tracking application with a **Vue 3** frontend and **Go** backend, using **SQLite** for data persistence and **AMap (Gaode Map)** for map rendering.
 
-一个基于 **Vue 3 + Flask + 本地 JSON 文件** 的旅行足迹记录应用，使用 **高德地图 API (AMap)** 进行地图渲染。
+---
 
-Images are stored via **URL links** (e.g. OSS, Cloudflare, GitHub Pages + jsDelivr).
- Since the dataset is small (text + URLs), a **local JSON file** is used as a lightweight database.
+## Features
 
-------
+- Add, edit, and delete travel footprints with name, coordinates, category, visit date, notes, and photos
+- Interactive map markers on AMap with category-based color coding
+- Photo upload (local file) with cover image and gallery preview
+- Keyword search and category filtering
+- Right-click on map to add footprints in add mode
+- Click markers to view detailed info card with cover photo, notes, and photo gallery
+- Seven preset categories: Natural Scenery, Historical Sites, Food, Cities, Art, Adventure, Islands
 
-## ✨ 功能 Features
+---
 
-- 📍 添加旅行足迹 (Add footprints with name, coordinates, and photos)
-- 🗺️ 高德地图标记展示 (Render markers on AMap)
-- 🖼️ 图片通过 URL 存储 (Store photos via URLs)
-- 💾 JSON 文件作为数据库 (Lightweight JSON file as backend storage)
-
-------
-
-## 📦 项目结构 Project Structure
+## Project Structure
 
 ```
-├── assets          # 静态文件
-├── backend 	   # 后端源代码
-│   ├── backend.py  # 后端代码
-│   └── markers.json # 数据json
-├── public			
-├── src			# 前端源代码
+vueTravelFootprints/
+├── backend-go/              # Go backend
+│   ├── main.go              # Entry point, route registration
+│   ├── config/config.go     # Environment variable configuration
+│   ├── models/models.go     # Data models and request/response structs
+│   ├── database/database.go # SQLite initialization, CRUD, search, seed data
+│   ├── handlers/
+│   │   ├── markers.go       # Footprint CRUD + search API handlers
+│   │   └── upload.go        # Image upload handler
+│   ├── middleware/cors.go   # CORS middleware
+│   ├── data/travel.db       # SQLite database file
+│   └── uploads/             # Uploaded images directory
+├── src/                     # Vue 3 frontend
+│   ├── api/
+│   │   ├── request.js       # Axios instance with interceptors
+│   │   └── markers.js       # Footprint API calls
+│   ├── stores/markers.js    # Pinia store for state management
+│   ├── components/main/
+│   │   ├── HeaderBar.vue    # Top bar with search, filter, add-mode toggle
+│   │   ├── MapPart.vue      # Map component with AMap integration
+│   │   ├── MarkerInfo.vue   # Info card shown on marker click
+│   │   └── MarkerAvatar.vue # Custom marker avatar on map
+│   ├── views/MapView.vue    # Main map view page
+│   ├── router/index.js      # Vue Router config
+│   └── main.js              # App entry point
+├── assets/                  # Static assets (CSS, images)
+├── dist/                    # Production build output
+├── doc/upgrade.md           # Upgrade suggestions
+├── .env                     # Environment variables
+├── .env.eg                  # Environment variable template
 ├── index.html
-├── jsconfig.json
-├── package-lock.json
 ├── package.json
 └── vite.config.js
 ```
 
-------
+---
 
-## 🚀 快速开始 Quick Start
+## Quick Start
 
-### 1️⃣ 配置环境变量 `.env`
+### 1. Environment Variables
 
-```
-VITE_AMAP_KEY=your_amap_key
-# ↑ 修改为你key
-VITE_API_BASE_URL=http://localhost:5000/
-# ↑ 修改为你后端的地址
-```
-
-### 2️⃣ 启动后端 Backend
+Copy `.env.eg` to `.env` and fill in your values:
 
 ```
-cd backend
-python3 server.py
+VITE_AMAP_KEY=your_amap_key_here
+VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
-默认运行在 `http://localhost:5000`。
+### 2. Start Go Backend
 
-### 3️⃣ 启动前端 Frontend
+```
+cd backend-go
+go run main.go
+```
+
+Or use the pre-built binary:
+
+```
+cd backend-go
+.\travel-server.exe
+```
+
+The server runs on `http://localhost:5000` by default. Configure via environment variables:
+
+| Variable   | Default         | Description          |
+|------------|-----------------|----------------------|
+| `PORT`     | `5000`          | Server port          |
+| `DB_PATH`  | `./data/travel.db` | SQLite database path |
+| `UPLOAD_DIR` | `./uploads`   | Uploaded images directory |
+
+### 3. Start Frontend
 
 ```
 npm install
 npm run dev
 ```
 
-构建静态资源：
+Build for production:
 
 ```
 npm run build
 ```
 
-# 📷 示例截图 Screenshots
+---
 
-![image-20250830011233852](./assets/readmeImages/image-20250830011233852.png)
+## API Reference
 
-![image-20250830011259609](./assets/readmeImages/image-20250830011259609.png)
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/markers` | Get all footprints |
+| `GET` | `/api/markers/{id}` | Get single footprint |
+| `GET` | `/api/markers/search?keyword=&category=&startDate=&endDate=` | Search and filter |
+| `POST` | `/api/markers` | Create footprint |
+| `PUT` | `/api/markers/{id}` | Update footprint |
+| `DELETE` | `/api/markers/{id}` | Delete footprint |
+| `POST` | `/api/upload` | Upload image |
+| `GET` | `/uploads/{filename}` | Static file serving |
 
-![image-20250830011310020](./assets/readmeImages/image-20250830011310020.png)
+---
 
+## Tech Stack
 
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Vue 3, Pinia, Element Plus, Axios, AMap JSAPI |
+| Backend | Go, net/http (standard library), SQLite (modernc.org/sqlite) |
+| Build | Vite |
+| Database | SQLite |
 
-![image-20250830011331507](./assets/readmeImages/image-20250830011331507.png)
+---
 
-# 
+## Screenshots
+
+![Screenshot 1](./assets/readmeImages/image-20250830011233852.png)
+
+![Screenshot 2](./assets/readmeImages/image-20250830011259609.png)
+
+![Screenshot 3](./assets/readmeImages/image-20250830011310020.png)
+
+![Screenshot 4](./assets/readmeImages/image-20250830011331507.png)
