@@ -1,0 +1,154 @@
+:root {
+  --tf-ink: #1c1915;
+  --tf-ink-soft: #5c5348;
+  --tf-ink-faint: #8a8176;
+  --tf-paper: #f4efe6;
+  --tf-paper-deep: #e8e0d2;
+  --tf-card: #fffdf8;
+  --tf-teal: #0f6e6b;
+  --tf-teal-deep: #0b5553;
+  --tf-teal-soft: #d7eceb;
+  --tf-sunset: #c96a32;
+  --tf-gold: #c4a35a;
+  --tf-rose: #c45c5c;
+  --tf-line: rgba(28, 25, 21, 0.08);
+  --tf-shadow: 0 16px 40px rgba(28, 25, 21, 0.12);
+  --tf-shadow-soft: 0 8px 24px rgba(28, 25, 21, 0.08);
+  --tf-radius: 18px;
+  --tf-radius-sm: 12px;
+  --header-h: 64px;
+  --sidebar-w: 320px;
+  --detail-w: 400px;
+  --font-sans: 'Outfit', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-serif: 'Fraunces', 'Songti SC', 'Noto Serif SC', serif;
+
+  --el-color-primary: #0f6e6b;
+  --el-color-primary-light-3: #3c8f8c;
+  --el-color-primary-light-5: #79b3b1;
+  --el-color-primary-light-7: #b6d6d5;
+  --el-color-primary-light-8: #d7eceb;
+  --el-color-primary-light-9: #eaf5f4;
+  --el-color-primary-dark-2: #0b5553;
+  --el-border-radius-base: 10px;
+  --el-font-family: var(--font-sans);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  color: var(--tf-ink);
+  background: var(--tf-paper);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  overflow: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
+
+.boot-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--tf-paper);
+  color: var(--tf-ink-soft);
+}
+
+.boot-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--tf-teal);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  box-shadow: var(--tf-shadow);
+}
+
+.app-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--tf-paper);
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+
+.map-stage {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  background: #dfe7e4;
+}
+
+.panel-card {
+  background: var(--tf-card);
+  border: 1px solid var(--tf-line);
+  box-shadow: var(--tf-shadow-soft);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--tf-teal);
+  --el-button-border-color: var(--tf-teal);
+  --el-button-hover-bg-color: var(--tf-teal-deep);
+  --el-button-hover-border-color: var(--tf-teal-deep);
+}
+
+.el-overlay .el-dialog {
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--tf-card);
+}
+
+.el-dialog__header {
+  margin-right: 0;
+  padding: 18px 22px 8px;
+}
+
+.el-dialog__title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.el-dialog__body {
+  padding: 12px 22px 8px;
+}
+
+.amap-info-content,
+.amap-info-close {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  :root {
+    --header-h: 58px;
+    --detail-w: min(100vw, 420px);
+  }
+}

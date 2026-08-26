@@ -1,4 +1,4 @@
-# Node.js dependencies
+# Node.js
 node_modules/
 package-lock.json
 
@@ -6,21 +6,26 @@ package-lock.json
 dist/
 .vite/
 
-# Local env files
+# Local env files (keep *.eg / *.example)
 .env
+.env.*
+!.env.eg
+!.env.example
 *.local
 
-# Editor directories and files
+# Editor
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS generated files
+# OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Python cache/virtualenv
+# Python cache/virtualenv (legacy)
 __pycache__/
 *.pyc
 *.pyo
@@ -32,3 +37,35 @@ env/
 # Logs
 *.log
 
+# Go binaries / test artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+backend-go/travel-server
+backend-go/travel-server-*
+
+# SQLite (runtime data)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+backend-go/data/*
+!backend-go/data/.gitkeep
+
+# Uploaded images
+backend-go/uploads/*
+!backend-go/uploads/.gitkeep
+
+# Deploy runtime (keep scripts, Caddyfile, env.example)
+deploy/.env
+deploy/CREDENTIALS.txt
+deploy/data/
+deploy/uploads/*
+!deploy/uploads/.gitkeep
+deploy/dist/
+deploy/travel-server
+deploy/travel-server-*

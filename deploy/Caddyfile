@@ -1,0 +1,27 @@
+# 旅迹 · Caddy 反代
+# 域名需先解析到本机，并放行 80 / 443。
+# 在本目录执行：caddy run --config Caddyfile
+# 或把下面站点块并入系统 /etc/caddy/Caddyfile。
+
+travel.regen.ltd {
+	encode gzip zstd
+
+	request_body {
+		max_size 32MB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:5000 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		flush_interval -1
+	}
+}
