@@ -151,12 +151,6 @@ npm run build
 
 ---
 
-## 截图
+demo:
 
-![Screenshot 1](./assets/readmeImages/image-20250830011233852.png)
-
-![Screenshot 2](./assets/readmeImages/image-20250830011259609.png)
-
-![Screenshot 3](./assets/readmeImages/image-20250830011310020.png)
-
-![Screenshot 4](./assets/readmeImages/image-20250830011331507.png)
+travel.regen.ltd
