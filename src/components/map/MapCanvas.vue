@@ -49,6 +49,12 @@
         @click="ui.regionLayerVisible = !ui.regionLayerVisible"
         title="城市填色开关"
       >◉</el-button>
+      <el-button
+        circle
+        :type="satelliteOn ? 'primary' : 'default'"
+        @click="toggleSatellite"
+        title="卫星图层开关"
+      >▦</el-button>
     </div>
   </div>
 </template>
@@ -78,6 +84,9 @@ let map = null
 let markerApps = []
 let amapMarkers = []
 let regionLayer = null
+// 卫星影像 + 路网标注两层一起切，纯卫星图没有道路和地名文字
+const satelliteOn = ref(false)
+let satelliteLayers = []
 
 const showEmpty = computed(() => !loading.value && !markers.loading && !error.value && !markers.markers.length && !ui.addMode)
 const showNoMatch = computed(() => !showEmpty.value && !markers.loading && markers.markers.length && !markers.filteredMarkers.length)
@@ -111,6 +120,10 @@ async function initMap() {
     })
     map.addControl(new AMap.Scale())
     map.on('click', onMapClick)
+    if (window.AMap.TileLayer?.Satellite) {
+      satelliteLayers = [new window.AMap.TileLayer.Satellite(), new window.AMap.TileLayer.RoadNet()]
+      if (satelliteOn.value) satelliteLayers.forEach((l) => l.setMap(map))
+    }
     if (window.AMap.DistrictLayer?.Province) {
       regionLayer = createRegionLayer()
       syncRegionLayer()
@@ -196,6 +209,11 @@ function fitAll() {
 function panTo(marker) {
   if (!map || !marker) return
   map.setZoomAndCenter(13, toAmapPos(marker.longitude, marker.latitude))
+}
+
+function toggleSatellite() {
+  satelliteOn.value = !satelliteOn.value
+  satelliteLayers.forEach((l) => l.setMap(satelliteOn.value ? map : null))
 }
 
 function locateMe() {
