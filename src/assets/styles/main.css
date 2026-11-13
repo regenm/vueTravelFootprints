@@ -5,9 +5,9 @@
   --tf-paper: #f4efe6;
   --tf-paper-deep: #e8e0d2;
   --tf-card: #fffdf8;
-  --tf-teal: #0f6e6b;
-  --tf-teal-deep: #0b5553;
-  --tf-teal-soft: #d7eceb;
+  --tf-teal: #4877ad;
+  --tf-teal-deep: #365e8c;
+  --tf-teal-soft: #dce6f1;
   --tf-sunset: #c96a32;
   --tf-gold: #c4a35a;
   --tf-rose: #c45c5c;
@@ -22,13 +22,13 @@
   --font-sans: 'Outfit', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-serif: 'Fraunces', 'Songti SC', 'Noto Serif SC', serif;
 
-  --el-color-primary: #0f6e6b;
-  --el-color-primary-light-3: #3c8f8c;
-  --el-color-primary-light-5: #79b3b1;
-  --el-color-primary-light-7: #b6d6d5;
-  --el-color-primary-light-8: #d7eceb;
-  --el-color-primary-light-9: #eaf5f4;
-  --el-color-primary-dark-2: #0b5553;
+  --el-color-primary: #4877ad;
+  --el-color-primary-light-3: #7ea0c6;
+  --el-color-primary-light-5: #a3bbd6;
+  --el-color-primary-light-7: #c8d6e7;
+  --el-color-primary-light-8: #dae5ef;
+  --el-color-primary-light-9: #edf4f8;
+  --el-color-primary-dark-2: #365e8c;
   --el-border-radius-base: 10px;
   --el-font-family: var(--font-sans);
 }

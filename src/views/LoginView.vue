@@ -80,7 +80,7 @@ async function submit() {
   overflow: hidden;
   background:
     radial-gradient(circle at 20% 20%, rgba(232, 195, 106, 0.28), transparent 32%),
-    linear-gradient(160deg, #0b5553 0%, #0f6e6b 48%, #163a3a 100%);
+    linear-gradient(160deg, #365e8c 0%, #4877ad 48%, #20304d 100%);
   color: #fffdf8;
   padding: 64px;
   display: flex;

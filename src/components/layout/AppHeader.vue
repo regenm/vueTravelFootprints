@@ -59,7 +59,9 @@
               <el-dropdown-item disabled>{{ auth.displayName }}</el-dropdown-item>
               <el-dropdown-item @click="ui.profileOpen = true">个人资料</el-dropdown-item>
               <el-dropdown-item @click="ui.openShare(null)">共享地图</el-dropdown-item>
+              <el-dropdown-item @click="ui.tripsOpen = true">行程管理</el-dropdown-item>
               <el-dropdown-item v-if="auth.isAdmin" @click="ui.usersOpen = true">用户管理</el-dropdown-item>
+              <el-dropdown-item v-if="auth.isAdmin" @click="onExport">导出备份</el-dropdown-item>
               <el-dropdown-item divided @click="onLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -73,8 +75,10 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { Menu, Plus, Search, Share } from '@element-plus/icons-vue'
 import UserAvatar from '@/components/common/UserAvatar.vue'
+import { exportBackup } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
 import { useMarkersStore } from '@/stores/markers'
 import { useUiStore } from '@/stores/ui'
@@ -96,6 +100,15 @@ function goHome() {
 function onLogout() {
   auth.logout()
   router.push('/login')
+}
+
+async function onExport() {
+  try {
+    await exportBackup()
+    ElMessage.success('备份已下载')
+  } catch (err) {
+    ElMessage.error(err.message || '导出失败')
+  }
 }
 </script>
 

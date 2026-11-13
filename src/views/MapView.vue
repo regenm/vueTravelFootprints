@@ -12,6 +12,7 @@
     <ShareDialog />
     <ProfileDialog />
     <UserManager />
+    <TripManager />
   </div>
 </template>
 
@@ -27,6 +28,7 @@ import MarkerForm from '@/components/marker/MarkerForm.vue'
 import ShareDialog from '@/components/share/ShareDialog.vue'
 import ProfileDialog from '@/components/layout/ProfileDialog.vue'
 import UserManager from '@/components/admin/UserManager.vue'
+import TripManager from '@/components/trip/TripManager.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useMarkersStore } from '@/stores/markers'
 import { useUiStore } from '@/stores/ui'

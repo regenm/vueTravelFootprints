@@ -31,7 +31,7 @@ export function initials(name = '') {
   return s.slice(0, 1).toUpperCase()
 }
 
-const AVATAR_TONES = ['#0f6e6b', '#c96a32', '#1971c2', '#7048e8', '#c2255c', '#2f9e44', '#0c8599', '#5c5348']
+const AVATAR_TONES = ['#4877ad', '#c96a32', '#1971c2', '#7048e8', '#c2255c', '#2f9e44', '#0c8599', '#5c5348']
 
 export function avatarTone(name = '') {
   const s = String(name)

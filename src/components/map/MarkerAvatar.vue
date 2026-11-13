@@ -49,7 +49,7 @@ const title = computed(() => (props.showAuthor && props.authorName ? props.autho
   display: block;
   width: 42px;
   height: 42px;
-  border: 3px solid var(--pin, #0f6e6b);
+  border: 3px solid var(--pin, #4877ad);
   border-radius: 14px 14px 14px 4px;
   overflow: hidden;
   background: #fff;

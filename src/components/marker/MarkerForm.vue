@@ -56,6 +56,11 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="所属行程">
+          <el-select v-model="form.tripId" clearable placeholder="不归属任何行程" style="width: 100%">
+            <el-option v-for="t in trips.trips" :key="t.id" :label="t.name" :value="t.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="地址">
           <el-input v-model="form.address" placeholder="搜索地点后会自动填充" />
         </el-form-item>
@@ -109,10 +114,13 @@
 import { reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useMarkersStore } from '@/stores/markers'
+import { useTripsStore } from '@/stores/trips'
 import { useUiStore } from '@/stores/ui'
+import { gcj02ToWgs84, wgs84ToGcj02 } from '@/utils/coords'
 import { searchPlaces } from '@/utils/places'
 
 const markers = useMarkersStore()
+const trips = useTripsStore()
 const ui = useUiStore()
 const formRef = ref(null)
 const submitting = ref(false)
@@ -127,6 +135,7 @@ const form = reactive({
   address: '',
   visitDate: '',
   category: '',
+  tripId: '',
   notes: '',
   photos: []
 })
@@ -145,6 +154,7 @@ function reset() {
     address: '',
     visitDate: '',
     category: '',
+    tripId: '',
     notes: '',
     photos: []
   })
@@ -155,16 +165,19 @@ watch(
   () => ui.formOpen,
   (open) => {
     if (!open) return
+    if (!trips.trips.length) trips.fetchTrips().catch(() => {})
     const editing = ui.editingMarker
     const coords = ui.pendingCoords
     if (editing) {
       Object.assign(form, {
         name: editing.name,
-        longitude: Number(editing.longitude),
-        latitude: Number(editing.latitude),
+        // 库里 WGS-84 → 表单 GCJ-02（高德坐标系）
+        longitude: wgs84ToGcj02(Number(editing.longitude), Number(editing.latitude))[0],
+        latitude: wgs84ToGcj02(Number(editing.longitude), Number(editing.latitude))[1],
         address: editing.address || '',
         visitDate: editing.visitDate || '',
         category: editing.category || '',
+        tripId: editing.tripId || '',
         notes: editing.notes || '',
         photos: [...(editing.photos || [])]
       })
@@ -211,7 +224,9 @@ function onPlaceSelect(item) {
   form.longitude = lng
   form.latitude = lat
   placeQuery.value = item.name || item.value
-  ui.focusMap(lng, lat)
+  // focusMap 的消费端（focusCoords watch）按 DB 语义（WGS-84）再转 GCJ-02，这里先转回 WGS-84 避免双重转换
+  const [wLng, wLat] = gcj02ToWgs84(lng, lat)
+  ui.focusMap(wLng, wLat)
   ElMessage.success(`已定位到${form.name}`)
 }
 
@@ -251,11 +266,13 @@ async function submit() {
   try {
     const payload = {
       name: form.name,
-      longitude: String(form.longitude),
-      latitude: String(form.latitude),
+      // 表单 GCJ-02 → 库 WGS-84
+      longitude: String(gcj02ToWgs84(form.longitude, form.latitude)[0]),
+      latitude: String(gcj02ToWgs84(form.longitude, form.latitude)[1]),
       address: form.address,
       visitDate: form.visitDate,
       category: form.category,
+      tripId: form.tripId || '',
       notes: form.notes,
       photos: form.photos
     }
@@ -347,7 +364,7 @@ async function submit() {
   bottom: 4px;
   font-style: normal;
   font-size: 10px;
-  background: rgba(15, 110, 107, 0.9);
+  background: rgba(72, 119, 173, 0.9);
   color: #fff;
   border-radius: 6px;
   padding: 1px 6px;

@@ -23,6 +23,25 @@
           <el-input v-model="form.displayName" maxlength="24" placeholder="别人看到的名字" />
         </el-form-item>
       </el-form>
+
+      <el-divider class="pwd-divider">
+        <button class="pwd-toggle" type="button" @click="pwdOpen = !pwdOpen">
+          {{ pwdOpen ? '收起修改密码' : '修改密码' }}
+        </button>
+      </el-divider>
+
+      <el-form v-if="pwdOpen" label-position="top" @submit.prevent="changePwd">
+        <el-form-item label="旧密码">
+          <el-input v-model="pwd.old" type="password" show-password autocomplete="current-password" />
+        </el-form-item>
+        <el-form-item label="新密码（至少 8 位）">
+          <el-input v-model="pwd.next" type="password" show-password autocomplete="new-password" />
+        </el-form-item>
+        <el-form-item label="确认新密码">
+          <el-input v-model="pwd.confirm" type="password" show-password autocomplete="new-password" @keyup.enter="changePwd" />
+        </el-form-item>
+        <el-button class="pwd-btn" type="warning" plain :loading="changingPwd" @click="changePwd">确认修改密码</el-button>
+      </el-form>
     </div>
 
     <template #footer>
@@ -37,6 +56,7 @@
 import { reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as markersApi from '@/api/markers'
+import { changePassword } from '@/api/auth'
 import UserAvatar from '@/components/common/UserAvatar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
@@ -50,6 +70,9 @@ const pendingAvatar = ref(null)
 const form = reactive({
   displayName: ''
 })
+const pwdOpen = ref(false)
+const changingPwd = ref(false)
+const pwd = reactive({ old: '', next: '', confirm: '' })
 
 watch(
   () => ui.profileOpen,
@@ -58,6 +81,10 @@ watch(
     form.displayName = auth.displayName
     preview.value = ''
     pendingAvatar.value = undefined
+    pwdOpen.value = false
+    pwd.old = ''
+    pwd.next = ''
+    pwd.confirm = ''
   }
 )
 
@@ -96,6 +123,30 @@ async function save() {
     ElMessage.error(err.message || '保存失败')
   } finally {
     saving.value = false
+  }
+}
+
+async function changePwd() {
+  if (!pwd.old || !pwd.next) {
+    ElMessage.warning('请填写旧密码和新密码')
+    return
+  }
+  if (pwd.next !== pwd.confirm) {
+    ElMessage.warning('两次输入的新密码不一致')
+    return
+  }
+  changingPwd.value = true
+  try {
+    await changePassword({ oldPassword: pwd.old, newPassword: pwd.next })
+    ElMessage.success('密码已修改')
+    pwdOpen.value = false
+    pwd.old = ''
+    pwd.next = ''
+    pwd.confirm = ''
+  } catch (err) {
+    ElMessage.error(err.message || '修改失败')
+  } finally {
+    changingPwd.value = false
   }
 }
 </script>
@@ -140,6 +191,31 @@ async function save() {
 }
 
 .profile :deep(.el-form) {
+  width: 100%;
+}
+
+.pwd-divider {
+  margin: 8px 0 16px;
+}
+
+.pwd-divider :deep(.el-divider__text) {
+  padding: 0;
+}
+
+.pwd-toggle {
+  border: none;
+  background: none;
+  color: var(--tf-teal);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+.pwd-toggle:hover {
+  text-decoration: underline;
+}
+
+.pwd-btn {
   width: 100%;
 }
 </style>

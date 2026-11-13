@@ -31,14 +31,46 @@ export const useMarkersStore = defineStore('markers', () => {
     })
   })
 
+  // 已到访城市的去重市码集合，供地图城市填色图层使用
+  const visitedCityCodes = computed(() => {
+    const set = new Set()
+    markers.value.forEach((m) => {
+      if (m.cityCode) set.add(m.cityCode)
+    })
+    return [...set]
+  })
+
+  // 已到访区县/省份的去重码集合，供地图区县填色图层使用
+  const visitedDistrictCodes = computed(() => {
+    const set = new Set()
+    markers.value.forEach((m) => {
+      if (m.districtCode) set.add(m.districtCode)
+    })
+    return [...set]
+  })
+
+  const visitedProvinceCodes = computed(() => {
+    const set = new Set()
+    markers.value.forEach((m) => {
+      if (m.provinceCode) set.add(m.provinceCode)
+    })
+    return [...set]
+  })
+
   const stats = computed(() => {
     const list = markers.value
     const photos = list.reduce((n, m) => n + (m.photos?.length || 0), 0)
     const cats = new Set(list.map((m) => m.category).filter(Boolean))
+    const provinces = new Set(list.map((m) => m.provinceCode).filter(Boolean))
+    const cities = new Set(list.map((m) => m.cityCode).filter(Boolean))
+    const trips = new Set(list.map((m) => m.tripId).filter(Boolean))
     return {
       places: list.length,
       photos,
-      categories: cats.size
+      categories: cats.size,
+      provinces: provinces.size,
+      cities: cities.size,
+      trips: trips.size
     }
   })
 
@@ -130,6 +162,9 @@ export const useMarkersStore = defineStore('markers', () => {
     canEdit,
     isShareView,
     filteredMarkers,
+    visitedCityCodes,
+    visitedDistrictCodes,
+    visitedProvinceCodes,
     stats,
     categoryOptions: CATEGORIES,
     getCategoryMeta,

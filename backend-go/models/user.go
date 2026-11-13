@@ -60,6 +60,11 @@ type UpdateProfileRequest struct {
 	Avatar      *string `json:"avatar"`
 }
 
+type ChangePasswordRequest struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
 type AuthResponse struct {
 	Token string     `json:"token"`
 	User  UserPublic `json:"user"`

@@ -13,6 +13,18 @@
         <b>{{ markers.stats.categories }}</b>
         <span>分类</span>
       </div>
+      <div>
+        <b>{{ markers.stats.provinces }}<i>/34</i></b>
+        <span>省份</span>
+      </div>
+      <div>
+        <b>{{ markers.stats.cities }}<i>/333</i></b>
+        <span>城市</span>
+      </div>
+      <div>
+        <b>{{ markers.stats.trips }}</b>
+        <span>行程</span>
+      </div>
     </div>
 
     <div v-if="auth.isLoggedIn && !isSharePage" class="tabs">
@@ -202,6 +214,13 @@ onMounted(() => {
   display: block;
   font-family: var(--font-serif);
   font-size: 22px;
+}
+
+.stats b i {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--tf-ink-faint);
+  font-weight: 400;
 }
 
 .stats span {

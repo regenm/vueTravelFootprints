@@ -19,7 +19,7 @@ export function loadAMap() {
   loadPromise = AMapLoader.load({
     key: import.meta.env.VITE_AMAP_KEY,
     version: '2.0',
-    plugins: ['AMap.Scale', 'AMap.Geocoder', 'AMap.AutoComplete', 'AMap.PlaceSearch']
+    plugins: ['AMap.Scale', 'AMap.Geocoder', 'AMap.AutoComplete', 'AMap.PlaceSearch', 'AMap.DistrictLayer']
   })
     .then(
       (AMap) =>

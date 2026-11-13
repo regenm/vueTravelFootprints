@@ -13,6 +13,39 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// ChangePassword 校验旧密码后更新当前用户密码
+func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.loadCurrentUser(w, r)
+	if !ok {
+		return
+	}
+
+	var req models.ChangePasswordRequest
+	if err := decodeJSON(r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "请求格式错误")
+		return
+	}
+	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.OldPassword)) != nil {
+		writeError(w, http.StatusUnauthorized, "旧密码不正确")
+		return
+	}
+	if len(req.NewPassword) < 8 {
+		writeError(w, http.StatusBadRequest, "新密码至少 8 位")
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "无法生成密码哈希")
+		return
+	}
+	if err := h.db.UpdateUserPassword(user.ID, string(hash)); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeOK(w, nil)
+}
+
 var usernameRE = regexp.MustCompile(`^[a-zA-Z0-9_]{3,20}$`)
 
 type AuthHandler struct {

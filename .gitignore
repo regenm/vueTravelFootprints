@@ -1,6 +1,5 @@
 # Node.js
 node_modules/
-package-lock.json
 
 # Vite build output
 dist/
@@ -11,7 +10,12 @@ dist/
 .env.*
 !.env.eg
 !.env.example
+.env.swp
 *.local
+
+# 本地自用打包脚本与产物
+package.sh
+release/
 
 # Editor
 .vscode/
@@ -24,6 +28,12 @@ dist/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Claude Code local session
+.claude/
+
+# Local screenshots
+iShot*.png
 
 # Python cache/virtualenv (legacy)
 __pycache__/
@@ -47,6 +57,7 @@ env/
 *.out
 backend-go/travel-server
 backend-go/travel-server-*
+note.txt
 
 # SQLite (runtime data)
 *.db

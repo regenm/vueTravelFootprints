@@ -43,6 +43,18 @@
     <div class="fab">
       <el-button circle @click="locateMe" title="我的位置">◎</el-button>
       <el-button circle @click="fitAll" title="查看全部足迹">⊕</el-button>
+      <el-button
+        circle
+        :type="ui.regionLayerVisible ? 'primary' : 'default'"
+        @click="ui.regionLayerVisible = !ui.regionLayerVisible"
+        title="城市填色开关"
+      >◉</el-button>
+      <el-button
+        circle
+        :type="satelliteOn ? 'primary' : 'default'"
+        @click="toggleSatellite"
+        title="卫星图层开关"
+      >▦</el-button>
     </div>
   </div>
 </template>
@@ -54,8 +66,15 @@ import { ElMessage } from 'element-plus'
 import MarkerAvatar from './MarkerAvatar.vue'
 import UserAvatar from '@/components/common/UserAvatar.vue'
 import { loadAMap } from '@/utils/amap'
+import { wgs84ToGcj02 } from '@/utils/coords'
 import { useMarkersStore } from '@/stores/markers'
 import { useUiStore } from '@/stores/ui'
+
+// 库中 WGS-84 → 高德 GCJ-02，用于地图视角与标记定位
+function toAmapPos(lng, lat) {
+  const [gLng, gLat] = wgs84ToGcj02(Number(lng), Number(lat))
+  return [gLng, gLat]
+}
 
 const markers = useMarkersStore()
 const ui = useUiStore()
@@ -64,6 +83,10 @@ const error = ref('')
 let map = null
 let markerApps = []
 let amapMarkers = []
+let regionLayer = null
+// 卫星影像 + 路网标注两层一起切，纯卫星图没有道路和地名文字
+const satelliteOn = ref(false)
+let satelliteLayers = []
 
 const showEmpty = computed(() => !loading.value && !markers.loading && !error.value && !markers.markers.length && !ui.addMode)
 const showNoMatch = computed(() => !showEmpty.value && !markers.loading && markers.markers.length && !markers.filteredMarkers.length)
@@ -92,11 +115,19 @@ async function initMap() {
     map = new AMap.Map('map-container', {
       zoom: 5,
       center: [104.0, 35.0],
-      mapStyle: 'amap://styles/fresh',
+      mapStyle: 'amap://styles/light',
       viewMode: '2D'
     })
     map.addControl(new AMap.Scale())
     map.on('click', onMapClick)
+    if (window.AMap.TileLayer?.Satellite) {
+      satelliteLayers = [new window.AMap.TileLayer.Satellite(), new window.AMap.TileLayer.RoadNet()]
+      if (satelliteOn.value) satelliteLayers.forEach((l) => l.setMap(map))
+    }
+    if (window.AMap.DistrictLayer?.Province) {
+      regionLayer = createRegionLayer()
+      syncRegionLayer()
+    }
     renderMarkers()
     fitAll()
   } catch (err) {
@@ -117,9 +148,11 @@ function renderMarkers() {
   if (!map || !window.AMap) return
   clearMarkers()
   markers.filteredMarkers.forEach((item) => {
-    const lng = Number(item.longitude)
-    const lat = Number(item.latitude)
-    if (Number.isNaN(lng) || Number.isNaN(lat)) return
+    const lngNum = Number(item.longitude)
+    const latNum = Number(item.latitude)
+    if (Number.isNaN(lngNum) || Number.isNaN(latNum)) return
+    // 库中 WGS-84 → 高德 GCJ-02 再渲染
+    const [lng, lat] = wgs84ToGcj02(lngNum, latNum)
 
     const el = document.createElement('div')
     const app = createApp(MarkerAvatar, {
@@ -175,7 +208,12 @@ function fitAll() {
 
 function panTo(marker) {
   if (!map || !marker) return
-  map.setZoomAndCenter(13, [Number(marker.longitude), Number(marker.latitude)])
+  map.setZoomAndCenter(13, toAmapPos(marker.longitude, marker.latitude))
+}
+
+function toggleSatellite() {
+  satelliteOn.value = !satelliteOn.value
+  satelliteLayers.forEach((l) => l.setMap(satelliteOn.value ? map : null))
 }
 
 function locateMe() {
@@ -187,9 +225,13 @@ function locateMe() {
     (pos) => {
       const lng = pos.coords.longitude
       const lat = pos.coords.latitude
-      map?.setZoomAndCenter(14, [lng, lat])
+      // 浏览器定位是 WGS-84：地图视角需转 GCJ-02；表单约定 GCJ-02，同样传转换后的值，
+      // 提交时由表单统一 gcj02ToWgs84 转回 WGS-84 入库（简报此行原文传 lng/lat，与其
+      // “三个入口收敛到同一条转换路径”的核心约定冲突，按约定修正，详见任务报告）
+      const [gLng, gLat] = wgs84ToGcj02(lng, lat)
+      map?.setZoomAndCenter(14, [gLng, gLat])
       if (ui.addMode) {
-        ui.openForm(null, { lng: lng.toFixed(6), lat: lat.toFixed(6) })
+        ui.openForm(null, { lng: gLng.toFixed(6), lat: gLat.toFixed(6) })
       }
     },
     () => ElMessage.error('定位失败，请检查权限')
@@ -200,8 +242,16 @@ watch(
   () => markers.filteredMarkers,
   () => {
     renderMarkers()
+    syncRegionLayer()
   },
   { deep: true }
+)
+
+watch(
+  () => ui.regionLayerVisible,
+  () => {
+    syncRegionLayer()
+  }
 )
 
 watch(
@@ -217,7 +267,7 @@ watch(
   () => ui.focusCoords,
   (coords) => {
     if (!coords || !map) return
-    map.setZoomAndCenter(14, [Number(coords.lng), Number(coords.lat)])
+    map.setZoomAndCenter(14, toAmapPos(coords.lng, coords.lat))
   }
 )
 
@@ -227,6 +277,37 @@ onBeforeUnmount(() => {
   map?.destroy()
   map = null
 })
+
+// 创建区县填色图层：DistrictLayer.Province 在 depth 2 才下发区县级要素
+// （实测 Country 图层与 Province depth 3 均只给到市级，区县码永不命中）；
+// adcode 限定为到访省份，fill 函数式样式按 props.adcode 匹配已到访区县，
+// 未到访区县返回完全透明，只点亮去过的区县
+function createRegionLayer() {
+  if (!map) return null
+  const provinces = markers.visitedProvinceCodes.map(String)
+  if (!provinces.length) return null
+  const visited = new Set(markers.visitedDistrictCodes.map(String))
+  const layer = new window.AMap.DistrictLayer.Province({
+    zIndex: 99,
+    adcode: provinces,
+    depth: 2,
+    styles: {
+      fill: (props) => (visited.has(String(props?.adcode)) ? 'rgba(72, 119, 173, 0.55)' : 'rgba(0, 0, 0, 0)')
+    }
+  })
+  layer.setMap(map)
+  return layer
+}
+
+// 已到访集合变化时函数式样式无法增量更新，销毁重建图层；同时同步显隐开关。
+// JSAPI 未就绪时（足迹先于地图加载完成）跳过，initMap 完成后会自建图层
+function syncRegionLayer() {
+  if (!map || !window.AMap?.DistrictLayer?.Province) return
+  regionLayer?.setMap(null)
+  regionLayer?.destroy?.()
+  regionLayer = createRegionLayer()
+  regionLayer?.[ui.regionLayerVisible ? 'show' : 'hide']?.()
+}
 
 defineExpose({ fitAll, renderMarkers })
 </script>

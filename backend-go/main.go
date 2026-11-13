@@ -33,10 +33,13 @@ func main() {
 	}
 
 	authHandler := handlers.NewAuthHandler(db, cfg.JWTSecret)
-	markerHandler := handlers.NewMarkerHandler(db)
 	shareHandler := handlers.NewShareHandler(db)
 	uploadHandler := handlers.NewUploadHandler(cfg.UploadDir, cfg.PublicURL)
 	placeHandler := handlers.NewPlaceHandler(cfg.AmapKey)
+	geocodeClient := handlers.NewGeocodeClient(cfg.AmapKey)
+	markerHandler := handlers.NewMarkerHandler(db, geocodeClient, cfg.UploadDir)
+	tripHandler := handlers.NewTripHandler(db)
+	backupHandler := handlers.NewBackupHandler(db, cfg.UploadDir)
 
 	mux := http.NewServeMux()
 	protect := middleware.RequireAuth(cfg.JWTSecret)
@@ -54,8 +57,10 @@ func main() {
 	})
 	mux.Handle("GET /api/auth/me", protect(http.HandlerFunc(authHandler.Me)))
 	mux.Handle("PUT /api/auth/me", protect(http.HandlerFunc(authHandler.UpdateMe)))
+	mux.Handle("PUT /api/auth/password", protect(http.HandlerFunc(authHandler.ChangePassword)))
 	mux.Handle("GET /api/admin/users", protect(http.HandlerFunc(authHandler.ListUsers)))
 	mux.Handle("POST /api/admin/users", protect(http.HandlerFunc(authHandler.CreateUser)))
+	mux.Handle("GET /api/admin/export", protect(http.HandlerFunc(backupHandler.Export)))
 
 	mux.Handle("GET /api/markers", protect(http.HandlerFunc(markerHandler.GetAll)))
 	mux.Handle("GET /api/markers/search", protect(http.HandlerFunc(markerHandler.Search)))
@@ -65,6 +70,11 @@ func main() {
 	mux.Handle("DELETE /api/markers/{id}", protect(http.HandlerFunc(markerHandler.Delete)))
 
 	mux.Handle("GET /api/places", protect(http.HandlerFunc(placeHandler.Search)))
+
+	mux.Handle("GET /api/trips", protect(http.HandlerFunc(tripHandler.List)))
+	mux.Handle("POST /api/trips", protect(http.HandlerFunc(tripHandler.Create)))
+	mux.Handle("PUT /api/trips/{id}", protect(http.HandlerFunc(tripHandler.Update)))
+	mux.Handle("DELETE /api/trips/{id}", protect(http.HandlerFunc(tripHandler.Delete)))
 
 	mux.Handle("GET /api/shares", protect(http.HandlerFunc(shareHandler.ListMine)))
 	mux.Handle("GET /api/shares/inbox", protect(http.HandlerFunc(shareHandler.Inbox)))

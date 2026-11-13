@@ -47,7 +47,7 @@ const props = defineProps({
   autoplay: { type: Boolean, default: true },
   interval: { type: Number, default: 4200 },
   placeholderEmoji: { type: String, default: '📍' },
-  placeholderColor: { type: String, default: '#0f6e6b' }
+  placeholderColor: { type: String, default: '#4877ad' }
 })
 
 const emit = defineEmits(['preview'])
